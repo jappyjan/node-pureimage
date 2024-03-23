@@ -99,7 +99,7 @@ class RegisteredFont {
  */
 export function registerFont(
   /** Path to the font binary file(.eot, .ttf etc.) */
-  binaryPath: string,
+  binaryPath: string | Buffer,
   /** The name to give the font */
   family: string,
   /** The font weight to use */
