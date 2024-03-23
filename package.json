@@ -1,5 +1,5 @@
 {
-  "name": "pureimage",
+  "name": "@jappyjan/pureimage",
   "version": "0.4.13",
   "description": "Pure JS image drawing API based on Canvas. Export to PNG, JPG, and streams.",
   "author": {
