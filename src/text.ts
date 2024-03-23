@@ -25,7 +25,7 @@ export type Font = {
 };
 
 class RegisteredFont {
-  binary: string;
+  binary: string | Buffer;
   family: string;
   weight: number;
   style: string;
@@ -33,11 +33,11 @@ class RegisteredFont {
   loaded: boolean;
   font: opentype.Font;
   constructor(
-    binaryPath: string,
+    binaryPath: string | Buffer,
     family: string,
     weight?: number,
     style?: string,
-    variant?: string,
+    variant?: string
   ) {
     this.binary = binaryPath;
     this.family = family;
@@ -59,14 +59,23 @@ class RegisteredFont {
       this.font = font;
       if (cb) cb();
     }.bind(this);
-    opentype.load(this.binary, onLoad);
+    if (typeof this.binary === "string") {
+      opentype.load(this.binary, onLoad);
+    } else {
+      const font = opentype.parse(this.binary);
+      onLoad(null, font);
+    }
   }
   loadSync() {
     if (this.loaded) {
       return this;
     }
     try {
-      this.font = opentype.loadSync(this.binary);
+      if (typeof this.binary === "string") {
+        this.font = opentype.loadSync(this.binary);
+      } else {
+        this.font = opentype.parse(this.binary);
+      }
       this.loaded = true;
       return this;
     } catch (err) {
@@ -98,14 +107,14 @@ export function registerFont(
   /** Font style */
   style?: string,
   /** Font variant */
-  variant?: string,
+  variant?: string
 ) {
   _fonts[family] = new RegisteredFont(
     binaryPath,
     family,
     weight,
     style,
-    variant,
+    variant
   );
   return _fonts[family];
 }
@@ -120,7 +129,7 @@ export const debug_list_of_fonts = _fonts;
  */
 function findFont(
   /** The name of the font family to search for */
-  family: string,
+  family: string
 ): RegisteredFont | undefined {
   if (_fonts[family]) return _fonts[family];
   family = Object.keys(_fonts)[0];
@@ -140,7 +149,7 @@ export function processTextPath(
   /** Indicates wether or not the font should be filled */
   fill: boolean,
   hAlign: TextAlign,
-  vAlign: TextBaseline,
+  vAlign: TextBaseline
 ) {
   const font = findFont(ctx._font.family);
   if (!font) {
@@ -199,7 +208,7 @@ export function measureText(
   /** The {@link Context} to paint on */
   ctx: Context,
   /** The name to give the font */
-  text: string,
+  text: string
 ): TextMetrics {
   const font = findFont(ctx._font.family);
   if (!font) {
